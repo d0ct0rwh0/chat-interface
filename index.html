@@ -98,41 +98,38 @@
     const userInput = document.getElementById("user-input");
 
     async function sendMessage() {
-      const userMessage = userInput.value.trim();
-      if (!userMessage) return;
+    const userMessage = userInput.value.trim();
+    if (!userMessage) return;
 
-      // Add user message to chat
-      addMessage("user", userMessage);
+    // Add user message to chat
+    addMessage("user", userMessage);
 
-      // Clear input
-      userInput.value = "";
+    // Show "Thinking..." placeholder
+    const botPlaceholder = addMessage("bot", "Thinking...");
 
-      // Show bot thinking message
-      const botPlaceholderId = addMessage("bot", "Thinking...");
-
-      try {
-        // Send the user's message to the backend
-        const response = await fetch("https://www.learnhow2.ai/_functions/getMathTutorResponse", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ question: userMessage }),
+    try {
+        // Send the user's message to the Wix backend
+        const response = await fetch("https://your-site-domain/_functions/getMathTutorResponse", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ question: userMessage }),
         });
 
         if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
         const data = await response.json();
 
-        // Update bot's placeholder with the actual reply
-        updateMessage(botPlaceholderId, data.reply);
-      } catch (error) {
-        console.error("Error:", error);
-        updateMessage(botPlaceholderId, "Something went wrong. Please try again.");
-      }
+        // Update the bot's placeholder with the actual response
+        updateMessage(botPlaceholder, data);
+    } catch (error) {
+        console.error("Error fetching from backend:", error);
+        updateMessage(botPlaceholder, "Something went wrong. Please try again.");
     }
+}
 
     // Function to add a message to the chat
     function addMessage(sender, text) {
